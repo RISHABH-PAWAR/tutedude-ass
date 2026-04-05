@@ -10,6 +10,7 @@ import {
 } from './state/roomState.js';
 import { registerMovementHandlers } from './handlers/movement.js';
 import { registerChatHandlers } from './handlers/chat.js';
+import { registerWebRTCHandlers } from './handlers/webrtc.js';
 import { getRoomId } from './handlers/proximity.js';
 import User from '../models/User.js';
 
@@ -51,6 +52,7 @@ export const initSocket = (httpServer) => {
 
     registerMovementHandlers(io, socket);
     registerChatHandlers(io, socket);
+    registerWebRTCHandlers(io, socket);
 
     socket.on('disconnect', (reason) => {
       const user = getUser(socket.id);

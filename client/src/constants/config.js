@@ -1,7 +1,7 @@
 export const CANVAS_WIDTH = 1200;
 export const CANVAS_HEIGHT = 700;
 
-export const AVATAR_RADIUS = 24;
+export const AVATAR_RADIUS = 28;
 export const PROXIMITY_RADIUS = 150;
 
 export const MOVE_SPEED = 3;

@@ -13,9 +13,10 @@ const CosmosCanvas = () => {
       height={CANVAS_HEIGHT}
       style={{
         display: 'block',
-        maxWidth: '100%',
-        maxHeight: '100%',
-        background: '#050505',
+        width: '100%',
+        height: '100%',
+        objectFit: 'contain',
+        background: 'transparent',
         borderRadius: '12px',
         border: '1px solid rgba(255,255,255,0.06)',
       }}

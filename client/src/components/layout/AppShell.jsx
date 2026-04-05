@@ -5,111 +5,61 @@ import CosmosCanvas from '../cosmos/CosmosCanvas.jsx';
 import ChatPanel from '../chat/ChatPanel.jsx';
 import ConnectionBadge from '../ui/ConnectionBadge.jsx';
 import UserCount from '../ui/UserCount.jsx';
-import { getAvatarColorHex } from '../../utils/avatarColor.js';
+import MediaControls from '../ui/MediaControls.jsx';
+import VideoPanel from '../ui/VideoPanel.jsx';
+import CartoonAvatar from '../ui/CartoonAvatar.jsx';
 
 const TICKER_ITEMS = [
-  'WASD to move',
-  'Approach others to chat',
-  'Walk away to close',
-  'Real-time proximity',
-  'End-to-end multiplayer',
-  'Live positions',
+  'WASD to move', 'Approach others to chat', 'Voice & video on proximity',
+  'Real-time multiplayer', 'End-to-end WebRTC', 'Live positions',
 ];
 
-const AppShell = () => {
+const AppShell = ({ onToggleMic, onToggleCamera }) => {
   const myUsername = useCosmosStore(s => s.myUsername);
   const hasJoined = useCosmosStore(s => s.hasJoined);
   const [showControls, setShowControls] = useState(false);
 
-  const avatarColor = myUsername ? getAvatarColorHex(myUsername) : 'transparent';
-  const initial = myUsername ? myUsername.charAt(0).toUpperCase() : '';
-
   return (
-    <div
-      style={{
-        height: '100vh',
-        width: '100vw',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        background: '#050505',
-      }}
-    >
-      <header
-        className="floating-nav"
-        style={{
-          flexShrink: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 20px',
-          height: 56,
-          position: 'relative',
-          zIndex: 10,
-        }}
-      >
+    <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#030311' }}>
+
+      {/* ── Header ── */}
+      <header className="floating-nav" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', height: 56, position: 'relative', zIndex: 10 }}>
+        {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 20 }}>🌌</span>
-          <span style={{
-            fontSize: 15,
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            color: '#F8F8F8',
-          }}>
+          <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em', color: '#F8F8F8' }}>
             Virtual Cosmos
           </span>
         </div>
 
+        {/* Center: connection badges */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <ConnectionBadge />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        {/* Right: media, controls, user */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <UserCount />
 
-          <button
-            onClick={() => setShowControls(v => !v)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '4px 12px',
-              borderRadius: '9999px',
-              border: '1px solid rgba(255,255,255,0.08)',
-              background: showControls ? 'rgba(0,232,122,0.08)' : 'transparent',
-              color: showControls ? '#00E87A' : '#555',
-              fontSize: 11,
-              fontWeight: 600,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              fontFamily: 'JetBrains Mono, monospace',
-            }}
-          >
+          <MediaControls onToggleMic={onToggleMic} onToggleCamera={onToggleCamera} />
+
+          <button onClick={() => setShowControls(v => !v)} style={{
+            display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px',
+            borderRadius: '9999px', border: '1px solid rgba(255,255,255,0.08)',
+            background: showControls ? 'rgba(0,232,122,0.08)' : 'transparent',
+            color: showControls ? '#00E87A' : '#555',
+            fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase',
+            cursor: 'pointer', transition: 'all 0.2s ease', fontFamily: 'JetBrains Mono, monospace',
+          }}>
             Controls
           </button>
 
           {hasJoined && myUsername && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: '50%',
-                  background: avatarColor,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: '#050505',
-                  flexShrink: 0,
-                }}
-              >
-                {initial}
+              <div style={{ width: 30, height: 30, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid rgba(0,232,122,0.35)', flexShrink: 0 }}>
+                <CartoonAvatar username={myUsername} size={30} />
               </div>
-              <span style={{ fontSize: 13, fontWeight: 500, color: '#888', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: 13, fontWeight: 500, color: '#888', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {myUsername}
               </span>
             </div>
@@ -117,38 +67,20 @@ const AppShell = () => {
         </div>
       </header>
 
+      {/* Controls dropdown */}
       <AnimatePresence>
         {showControls && (
           <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.97 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0, y: -8, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.97 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              position: 'absolute',
-              top: 64,
-              right: 20,
-              zIndex: 20,
-              background: 'rgba(10,10,10,0.96)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 12,
-              padding: '16px 18px',
-              backdropFilter: 'blur(24px)',
-              WebkitBackdropFilter: 'blur(24px)',
-              minWidth: 200,
+              position: 'absolute', top: 64, right: 20, zIndex: 20,
+              background: 'rgba(8,8,18,0.96)', border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 12, padding: '16px 18px', backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)', minWidth: 200,
             }}
           >
-            <p style={{
-              fontSize: 10,
-              fontWeight: 600,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              color: '#00E87A',
-              marginBottom: 12,
-              fontFamily: 'JetBrains Mono, monospace',
-            }}>
-              Controls
-            </p>
+            <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#00E87A', marginBottom: 12, fontFamily: 'JetBrains Mono, monospace' }}>Controls</p>
             {[
               { keys: ['W', 'A', 'S', 'D'], label: 'Move avatar' },
               { keys: ['↑', '↓', '←', '→'], label: 'Move (arrows)' },
@@ -157,19 +89,7 @@ const AppShell = () => {
               <div key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 8 }}>
                 <span style={{ fontSize: 12, color: '#555' }}>{label}</span>
                 <div style={{ display: 'flex', gap: 3 }}>
-                  {keys.map(k => (
-                    <kbd key={k} style={{
-                      fontSize: 10,
-                      fontFamily: 'JetBrains Mono, monospace',
-                      background: 'rgba(255,255,255,0.06)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: 4,
-                      padding: '2px 6px',
-                      color: '#888',
-                    }}>
-                      {k}
-                    </kbd>
-                  ))}
+                  {keys.map(k => <kbd key={k} style={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4, padding: '2px 6px', color: '#888' }}>{k}</kbd>)}
                 </div>
               </div>
             ))}
@@ -177,66 +97,21 @@ const AppShell = () => {
         )}
       </AnimatePresence>
 
-      <main
-        style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 16,
-          overflow: 'hidden',
-          position: 'relative',
-        }}
-      >
+      {/* ── Main canvas area ── */}
+      <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, overflow: 'hidden', position: 'relative' }}>
         <CosmosCanvas />
 
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 24,
-            right: 24,
-            zIndex: 10,
-          }}
-        >
+        {/* Bottom-right overlay: video + chat */}
+        <div style={{ position: 'absolute', bottom: 24, right: 24, zIndex: 10, display: 'flex', alignItems: 'flex-end', gap: 10 }}>
+          <VideoPanel />
           <ChatPanel />
         </div>
       </main>
 
-      <div
-        style={{
-          flexShrink: 0,
-          borderTop: '1px solid rgba(255,255,255,0.04)',
-          position: 'relative',
-          overflow: 'hidden',
-          height: 36,
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: 60,
-            background: 'linear-gradient(to right, #050505, transparent)',
-            zIndex: 2,
-            pointerEvents: 'none',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: 60,
-            background: 'linear-gradient(to left, #050505, transparent)',
-            zIndex: 2,
-            pointerEvents: 'none',
-          }}
-        />
+      {/* ── Ticker ── */}
+      <div style={{ flexShrink: 0, borderTop: '1px solid rgba(255,255,255,0.04)', position: 'relative', overflow: 'hidden', height: 36, display: 'flex', alignItems: 'center' }}>
+        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 60, background: 'linear-gradient(to right, #030311, transparent)', zIndex: 2, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 60, background: 'linear-gradient(to left, #030311, transparent)', zIndex: 2, pointerEvents: 'none' }} />
         <div style={{ display: 'flex', animation: 'marquee 30s linear infinite', whiteSpace: 'nowrap' }}>
           {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
             <span key={i} className="ticker-item">
