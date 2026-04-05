@@ -1,19 +1,20 @@
 # 🌌 Virtual Cosmos
 
-A production-grade 2D multiplayer virtual space where proximity unlocks chat. Move your avatar close to someone — a chat panel appears. Walk away — it closes.
+A production-grade 2D multiplayer virtual space where proximity unlocks text, audio, and video chat. Move your cartoon avatar close to someone — a chat and video panel appears. Walk away — it seamlessly closes.
 
-Built with React 19, PixiJS 8, Socket.IO 4, Express 5, MongoDB.
+Built with React 19, PixiJS 8, WebRTC, Socket.IO 4, Express 5, MongoDB.
 
 ---
 
 ## Features
 
-- **Proximity chat** — chat rooms open and close based on your canvas position
-- **Real-time movement** — 60fps avatar movement, positions broadcast at 20 updates/sec
-- **Persistent messages** — last 50 messages per room loaded from MongoDB (auto-delete after 24h)
-- **Deterministic room IDs** — `[idA, idB].sort().join('_')` ensures both clients agree
-- **Multi-peer** — handles multiple simultaneous proximity connections
-- **Scaliq design system** — DM Sans, #00E87A green, dark surfaces, framer-motion animations
+- **Proximity Voice & Video Chat** — WebRTC-based peer-to-peer audio and video streaming that instantly connects when avatars get close.
+- **Proximity Text Chat** — Chat rooms seamlessly open and close based on your canvas position.
+- **Dynamic Cartoon Avatars & Game World** — Custom cartoon avatars set in a responsive game-themed background that scales across all screen sizes.
+- **Real-time movement** — 60fps avatar movement, positions broadcast at 20 updates/sec.
+- **Persistent messages** — Last 50 messages per room loaded from MongoDB (auto-delete after 24h).
+- **Deterministic room IDs & Multi-peer** — Deterministic connections via `[idA, idB].sort().join('_')` capable of handling multiple simultaneous proximity sessions.
+- **Scaliq design system** — DM Sans, #00E87A green, dark surfaces, framer-motion animations.
 
 ---
 
@@ -27,7 +28,7 @@ Built with React 19, PixiJS 8, Socket.IO 4, Express 5, MongoDB.
 | Styling | Tailwind CSS | 4.1.3 |
 | Animation | Framer Motion | 11.x |
 | State | Zustand | 5.0.3 |
-| Realtime | Socket.IO client | 4.8.1 |
+| Realtime | Socket.IO client + native WebRTC | 4.8.1 / Native |
 | Backend | Express | 5.1.0 |
 | Realtime server | Socket.IO | 4.8.1 |
 | Database | Mongoose + MongoDB Atlas | 8.13.2 |
@@ -125,11 +126,13 @@ Every position update:
   if distance < 150 AND not connected:
     roomId = [idA, idB].sort().join('_')  // same on client + server
     both join Socket.IO room
-    emit proximity:connect to both → ChatPanel appears
+    emit proximity:connect to both → Chat/Video Panel appears
+    User with lower ID initiates WebRTC offer for Audio/Video via Socket.IO signaling
 
   if distance >= 150 AND was connected:
     both leave Socket.IO room
-    emit proximity:disconnect → ChatPanel closes
+    emit proximity:disconnect → Chat/Video Panel closes
+    WebRTC Peer Connections destroyed
 ```
 
 ---
@@ -161,9 +164,9 @@ virtual-cosmos/
     │   │   ├── chat/     ← ChatPanel, ChatMessage, ChatInput
     │   │   ├── ui/       ← NameEntry, ConnectionBadge, UserCount
     │   │   └── layout/   ← AppShell (header + main)
-    │   ├── hooks/        ← useSocket, useKeyboard
     │   ├── store/        ← Zustand cosmosStore
     │   ├── socket/       ← socketClient singleton
+    │   ├── hooks/        ← useWebRTC, useSocket, useKeyboard
     │   ├── utils/        ← proximity math, avatar colors
     │   └── constants/    ← config.js (shared constants)
     └── package.json
